@@ -26,6 +26,13 @@ const PROJECTS = [
       { text: "[Расскажите о своей роли и о том, как вы придумывали героев и интерьеры.]" },
       { text: "Нажмите на силуэт, чтобы открыть персонажа." },
       { interactive: "bakery" }
+    ] },
+  { id: "metagame-kostyumy", title: "Метаигра: костюмы и ассеты", year: "", role: "",
+    cover: "images/projects/wardrobe-cover.jpg",
+    intro: "Я отрисовывала костюмы и ассеты для персонажей игры. [Допишите: что за игра, чем вы занимались, какая часть работы ваша.]",
+    blocks: [
+      { interactive: "wardrobe" },
+      { text: "[Расскажите, как устроена система: слои по частям тела, сеты, шапки, оружие, версии для мальчика и девочки.]" }
     ] }
 ];
 
@@ -94,10 +101,11 @@ if (page === "project") {
   const p = PROJECTS.find(x => x.id === new URLSearchParams(location.search).get("id")) || PROJECTS[0];
   document.title = p.title + " — " + SITE.name;
   main.innerHTML = `<article class="project"><h1>${p.title}</h1>${[p.year, p.role].filter(Boolean).length ? `<p class="meta">${[p.year, p.role].filter(Boolean).join(", ")}</p>` : ""}
-    <p class="lead">${p.intro}</p>${p.blocks.map(b => b.interactive ? `<div class="bakery" data-bakery></div>` : b.img
+    <p class="lead">${p.intro}</p>${p.blocks.map(b => b.interactive ? `<div class="${b.interactive}" data-${b.interactive}></div>` : b.img
       ? `<figure>${img(b.img, b.caption || p.title)}${b.caption ? `<figcaption>${b.caption}</figcaption>` : ""}</figure>`
       : `<p>${b.text}</p>`).join("")}<a class="back" href="projects.html">Все проекты</a></article>`;
   if (window.initBakery) document.querySelectorAll("[data-bakery]").forEach(window.initBakery);
+  if (window.initWardrobe) document.querySelectorAll("[data-wardrobe]").forEach(window.initWardrobe);
 }
 
 if (page === "gallery") {
