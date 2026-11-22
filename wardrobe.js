@@ -31,8 +31,9 @@
     root.innerHTML =
       '<section class="wd-scene wd-parade"><div class="wd-head"><p class="wd-stat"></p><div class="wd-sw"></div></div>' +
       '<div class="wd-row"></div><p class="wd-hint">Нажмите на героя: он окажется в примерочной</p></section>' +
-      '<section class="wd-scene wd-fit"><div class="wd-stage"><div class="wd-char"></div><i class="wd-floor"></i></div>' +
-      '<div class="wd-ctrl"><div class="wd-sw"></div><div class="wd-sec" data-k="base"><h4>Сет</h4><div class="wd-tiles"></div></div>' +
+      '<section class="wd-scene wd-fit"><div class="wd-stage"><div class="wd-sw"></div><div class="wd-char"></div><i class="wd-floor"></i></div>' +
+      '<div class="wd-ctrl" data-tab="base"><div class="wd-tabs"><button type="button" data-tab="base">Сет</button><button type="button" data-tab="hat">Шапка</button><button type="button" data-tab="wep">Оружие</button></div>' +
+      '<div class="wd-sec" data-k="base"><h4>Сет</h4><div class="wd-tiles"></div></div>' +
       '<div class="wd-sec" data-k="hat"><h4>Шапка</h4><div class="wd-tiles"></div></div>' +
       '<div class="wd-sec" data-k="wep"><h4>Оружие</h4><div class="wd-tiles"></div></div>' +
       '<div class="wd-act"><button type="button" data-a="rnd">Случайный образ</button><button type="button" data-a="rst">Сбросить</button></div>' +
@@ -81,8 +82,17 @@
       $(".wd-count", fit).innerHTML = "Образов можно собрать: <b>" + combos().toLocaleString("ru") + "</b>";
       root.querySelectorAll(".wd-sw button").forEach(x => x.classList.toggle("on", x.dataset.g === g));
     }
+    const ctrl = $(".wd-ctrl", fit), mq = window.matchMedia("(max-width:760px)");
+    const markTab = () => root.querySelectorAll(".wd-tabs button").forEach(x => x.classList.toggle("on", x.dataset.tab === ctrl.dataset.tab));
+    function fitScale() { /* на телефоне персонаж подгоняется под высоту закреплённой сцены */
+      const box = stage.parentElement;
+      if (!mq.matches) return stage.style.removeProperty("--s");
+      stage.style.setProperty("--s", Math.min(box.clientHeight / 700, box.clientWidth / 480).toFixed(3));
+    }
+    new ResizeObserver(fitScale).observe(stage.parentElement); mq.addEventListener("change", fitScale);
     fit.addEventListener("click", e => {
       const t = e.target.closest("button"); if (!t) return;
+      if (t.dataset.tab) { ctrl.dataset.tab = t.dataset.tab; markTab(); return; }
       if (t.dataset.a === "rnd") {
         const l = sets(), s = l[Math.random() * l.length | 0], o = own(s.id); st.base = s.id;
         const hs = l.filter(x => x.h), ws = l.filter(x => x.w);
@@ -96,7 +106,7 @@
       if (k === "base") Object.assign(st, own(v)); else st[k] = v || null;
       drawFit(true);
     });
-    function drawAll() { drawParade(); drawFit(false); }
+    function drawAll() { drawParade(); drawFit(false); markTab(); fitScale(); }
     drawAll();
   }
   window.initWardrobe = initWardrobe;
